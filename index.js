@@ -15,7 +15,7 @@ dotenv.config({
 const app = express() 
 app.use(express.json())
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: "https://astro-decks.vercel.app", // change this when in dev
   credentials: true,
 }));
 app.use(cookieParser());
