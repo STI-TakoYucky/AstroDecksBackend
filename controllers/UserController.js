@@ -1,22 +1,16 @@
 import { UserModel } from '../models/UserModel.js'
 
-export const pushUserToDB = async (req, res) => {
+export const fetchUserData = async (req, res) => {
     //user is an object that comes from the data object in clerk
-    const { user } = req.body
+    const data = req.body
     try {
-        const userExists = await UserModel.findById(user.id)
-
-        //change users' names
-        // await UserModel.updateOne({_id: user.id}, {
-        //     username: user.username,
-        //     imageUrl: user.imageUrl
-        // })
+        const userExists = await UserModel.findById(data._id)
 
         if (userExists) {
             return res.status(200).json(userExists)
+        } else {
+             res.status(500).json({message: "User does not exist" })
         }
-
-        const newUser = await UserModel.create({ _id: user.id, username: user.username, imageUrl: user.imageUrl });
         return res.status(201).json(newUser);
     } catch (error) {
         res.status(500).json({message: error.message })

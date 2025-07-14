@@ -1,12 +1,13 @@
 import express from 'express'
 const router = express.Router();
-import { signUp, verifyEmail, verifyUsername, authenticateToken, signIn } from '../controllers/AuthController.js';
+import { signUp, verifyEmail, verifyUsername, authenticateToken, signIn, signOut } from '../controllers/AuthController.js';
 import UserAuthModel from '../models/UserAuthModel.js';
 
 router.post('/verify-email', verifyEmail)
 router.post('/verify-username', verifyUsername)
 router.post('/sign-up', signUp)
 router.post('/sign-in', signIn)
+router.post('/sign-out', signOut)
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = await UserAuthModel.findById(req.user.id).select("-passwordHash");

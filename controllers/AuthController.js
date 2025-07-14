@@ -1,4 +1,5 @@
 import UserAuthModel from "../models/UserAuthModel.js"
+import {UserModel} from '../models/UserModel.js'
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -40,11 +41,13 @@ export const signUp = async (req, res) => {
   try {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    await UserAuthModel.create({
+    const userAuth = await UserAuthModel.create({
       email: data.email,
       passwordHash: hashedPassword,
       username: data.username
     })
+
+    const newUser = await UserModel.create({ _id: userAuth._id, username: userAuth.username});
 
     return res.status(201).json({message: "Account created succesfully"})
   } catch (error) {
@@ -87,6 +90,20 @@ export const signIn = async (req, res) => {
     return res.status(500).json({message: error.message})
   }
 }
+
+export const signOut = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return res.status(200).json({ message: "Successfully signed out" });
+  } catch (error) {
+    return res.status(500).json({ message: "Sign out failed" });
+  }
+};
 
 export const authenticateToken = (req, res, next) => {
   const token = req.cookies.token;
