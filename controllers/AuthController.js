@@ -4,20 +4,21 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export const verifyEmail = async (req, res) => {
-  const data = req.body
+  const data = req.body;
 
   try {
-    const existingUser = await UserAuthModel.findOne({email: data.email}) 
+    const existingUser = await UserAuthModel.findOne({ email: data.email });
 
     if (existingUser) {
       throw new Error("A user with this email already exists.");
     }
 
-    return res.status(200).json({message: "Email is available"})
+    return res.status(200).json({ message: "Email is available" });
   } catch (error) {
-    return res.status(500).json({message: error.message})
+    console.error("verifyEmail error:", error); // ✅ ADD THIS
+    return res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const verifyUsername = async (req, res) => {
   const data = req.body
