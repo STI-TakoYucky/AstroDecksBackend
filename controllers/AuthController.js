@@ -1,11 +1,103 @@
-import { clerkClient, getAuth } from '@clerk/express'
+import UserAuthModel from "../models/UserAuthModel.js"
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-export const authenticateUser = async (req, res) => {
-      // Use `getAuth()` to get the user's `userId`
-  const { userId } = getAuth(req)
+export const verifyEmail = async (req, res) => {
+  const data = req.body
 
-  // Use Clerk's JavaScript Backend SDK to get the user's User object
-  const user = await clerkClient.users.getUser(userId)
+  try {
+    const existingUser = await UserAuthModel.findOne({email: data.email}) 
 
-  return res.json({ user })
+    if (existingUser) {
+      throw new Error("A user with this email already exists.");
+    }
+
+    return res.status(200).json({message: "Email is available"})
+  } catch (error) {
+    return res.status(500).json({message: error.message})
+  }
 }
+
+export const verifyUsername = async (req, res) => {
+  const data = req.body
+
+  try {
+    const existingUser = await UserAuthModel.findOne({username: data.username}) 
+
+    if (existingUser) {
+      throw new Error("A user with this username already exists.");
+    }
+
+    return res.status(200).json({message: "Account created successfully"})
+  } catch (error) {
+    return res.status(500).json({message: error.message})
+  }
+}
+
+export const signUp = async (req, res) => {
+  const data = req.body 
+
+  try {
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    await UserAuthModel.create({
+      email: data.email,
+      passwordHash: hashedPassword,
+      username: data.username
+    })
+
+    return res.status(201).json({message: "Account created succesfully"})
+  } catch (error) {
+    return res.status(500).json({message: error.message})
+  }
+}
+
+export const signIn = async (req, res) => {
+  const data = req.body
+  
+   try {
+    const existingUser = await UserAuthModel.findOne({email: data.email}) 
+
+    if (!existingUser) {
+      throw new Error("Email does not exist");
+    }
+
+    const isMatch = await bcrypt.compare(data.password, existingUser.passwordHash);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      {id: existingUser.id, email: existingUser.email},
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    )
+
+    // Send it as HttpOnly cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000 // 1 hour
+    });
+
+    return res.status(200).json({ message: "Login successful" });
+  } catch (error) {
+    return res.status(500).json({message: error.message})
+  }
+}
+
+export const authenticateToken = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // attach user data
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
+};
