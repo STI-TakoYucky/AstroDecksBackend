@@ -35,7 +35,6 @@ export const pushDeckToDB = async (req, res) => {
 export const updateDeck = async (req, res) => {
     const { id } = req.params
     const data = req.body
-    console.log(data)
     try {
         const updatedDeck = await DeckModel.findByIdAndUpdate({_id: id}, data, {new: true})
         return res.status(200).json(updatedDeck)

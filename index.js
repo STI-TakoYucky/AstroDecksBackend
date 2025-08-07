@@ -13,12 +13,12 @@ dotenv.config({
 });
 
 const app = express() 
-app.use(express.json())
 app.use(cors({
-  origin: "https://astro-decks.vercel.app", // change this when in dev
+  origin: "http://localhost:5173", // change this when in dev
   credentials: true,
 }));
 app.use(cookieParser());
+app.use(express.json())
 const PORT = process.env.PORT || 5000
 
 app.use('/api/protected', AuthRoutes)
@@ -27,27 +27,6 @@ app.use('/api/decks', DeckRoutes)
 
 connectDB()
 
-// await UserModel.updateMany(
-//     {
-//         $or: [
-//             { decks: { $exists: false} },
-//             { savedDecks: { $exists: false} },
-//             { username: {$exists: false}},
-//             { imageURL: {$exists: false}}
-//         ]
-//     },
-//     {
-//         $set: {
-//             decks: [],
-//             savedDecks: [],
-//             username: "",
-//             imageURL: ""
-//         }
-//     }
-// )
-
 
 // Start the server and listen on the specified port
-app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`)
-})
+app.listen(PORT)

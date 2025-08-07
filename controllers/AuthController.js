@@ -81,12 +81,12 @@ export const signIn = async (req, res) => {
     // Send it as HttpOnly cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      sameSite: process.env.NODE_ENV === "production" ? "none": "lax",
       maxAge: 60 * 60 * 1000 // 1 hour
     });
 
-    return res.status(200).json({ message: "Login successful" });
+    return res.status(200).json({ message: "Logged in successfully" });
   } catch (error) {
     return res.status(500).json({message: error.message})
   }
@@ -96,8 +96,8 @@ export const signOut = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production" ? true : false,
+      sameSite: process.env.NODE_ENV === "production" ? "none": "lax"
     });
 
     return res.status(200).json({ message: "Successfully signed out" });
