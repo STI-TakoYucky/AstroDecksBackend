@@ -14,7 +14,7 @@ dotenv.config({
 
 const app = express() 
 app.use(cors({
-  origin: "http://localhost:5173", // change this when in dev
+  origin: "https://astro-decks.vercel.app/", // change this when in dev https://astro-decks.vercel.app/
   credentials: true,
 }));
 app.use(cookieParser());
