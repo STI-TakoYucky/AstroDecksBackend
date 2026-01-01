@@ -1,4 +1,5 @@
 import { DeckModel } from "../models/DeckModel.js"
+import { UserModel } from "../models/UserModel.js"
 
 
 export const getCommunityDecks = async (req, res) => {
@@ -56,11 +57,18 @@ export const deleteDeck = async (req, res) => {
     }
 }
 
-export const getSingleDeck = async (req, res) => {
+export const getDeckByID = async (req, res) => {
     const { id } = req.params
     try {
         const deck = await DeckModel.findById(id)
-        return res.status(200).json(deck)
+        const user = await UserModel.findById(deck.authorID)
+
+        const deckWithAuthor = {
+        ...deck.toObject(),      // convert Mongoose doc to plain JS object
+        authorName: user ? user.username : "Unknown"
+        };
+        
+        return res.status(200).json(deckWithAuthor)
     } catch (error) {
         return res.status(404).json({message: "Failed to get deck"})
     }
