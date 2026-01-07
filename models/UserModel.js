@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "https://i.ibb.co/8LXK5mYv/default-profile-picture.png"
     },
+    categories: {
+        type: []
+    },
     savedDecks: {
         type: []
     }

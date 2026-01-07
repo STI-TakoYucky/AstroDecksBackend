@@ -32,6 +32,9 @@ export const deckSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    category: {
+        type: String, 
+    },
     cards: {
         type: [cardSchema],
         default: []
