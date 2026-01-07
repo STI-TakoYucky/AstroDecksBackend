@@ -14,7 +14,7 @@ export const getCommunityDecks = async (req, res) => {
 export const fetchDecks = async (req, res) => {
     const { id } = req.params
     try {
-        const decks = await DeckModel.find({ authorID: id });
+        const decks = await DeckModel.find({ authorID: id }).sort({createdAt: -1});
         return res.status(200).json(decks);
     } catch (error) {
         return res.status(400).json({ message: error.message })
